@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/onegraph-changelog/static/css/main.f298876b.chunk.css",
+    "main.js": "/onegraph-changelog/static/js/main.cfde400c.chunk.js",
+    "main.js.map": "/onegraph-changelog/static/js/main.cfde400c.chunk.js.map",
+    "runtime~main.js": "/onegraph-changelog/static/js/runtime~main.8e998d6c.js",
+    "runtime~main.js.map": "/onegraph-changelog/static/js/runtime~main.8e998d6c.js.map",
+    "static/css/2.dca731c4.chunk.css": "/onegraph-changelog/static/css/2.dca731c4.chunk.css",
+    "static/js/2.583c9447.chunk.js": "/onegraph-changelog/static/js/2.583c9447.chunk.js",
+    "static/js/2.583c9447.chunk.js.map": "/onegraph-changelog/static/js/2.583c9447.chunk.js.map",
+    "index.html": "/onegraph-changelog/index.html",
+    "precache-manifest.4075682e2fdcd10107626fd293a4e584.js": "/onegraph-changelog/precache-manifest.4075682e2fdcd10107626fd293a4e584.js",
+    "service-worker.js": "/onegraph-changelog/service-worker.js",
+    "static/css/2.dca731c4.chunk.css.map": "/onegraph-changelog/static/css/2.dca731c4.chunk.css.map",
+    "static/css/main.f298876b.chunk.css.map": "/onegraph-changelog/static/css/main.f298876b.chunk.css.map",
+    "static/media/addIcon.b773952d.svg": "/onegraph-changelog/static/media/addIcon.b773952d.svg",
+    "static/media/emojiIcon.b6ae2989.svg": "/onegraph-changelog/static/media/emojiIcon.b6ae2989.svg",
+    "static/media/loadingSpinner.c5a86d65.svg": "/onegraph-changelog/static/media/loadingSpinner.c5a86d65.svg",
+    "static/media/notifications.css": "/onegraph-changelog/static/media/notification.c0d3c94c.eot",
+    "static/media/oneGraphLogo.520245d7.svg": "/onegraph-changelog/static/media/oneGraphLogo.520245d7.svg"
+  }
+}
