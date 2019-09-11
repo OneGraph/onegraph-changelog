@@ -13,6 +13,8 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type Posts_repository$ref: FragmentReference;
 declare export opaque type Posts_repository$fragmentType: Posts_repository$ref;
 export type Posts_repository = {|
+  +nameWithOwner: string,
+  +url: string,
   +issues: {|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -72,6 +74,20 @@ const node/*: ReaderFragment*/ = {
   ],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "nameWithOwner",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "url",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": "issues",
       "name": "__Posts_posts_issues_connection",
@@ -81,7 +97,8 @@ const node/*: ReaderFragment*/ = {
           "kind": "Literal",
           "name": "labels",
           "value": [
-            "publish"
+            "publish",
+            "Publish"
           ]
         },
         {
@@ -171,5 +188,5 @@ const node/*: ReaderFragment*/ = {
   ]
 };
 // prettier-ignore
-(node/*: any*/).hash = '2c3d40f990b05f9138cf469446bd1e6d';
+(node/*: any*/).hash = '56c6872d7b142aed03895fffc09f3a7b';
 module.exports = node;

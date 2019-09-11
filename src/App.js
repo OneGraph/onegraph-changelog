@@ -6,6 +6,7 @@ import graphql from 'babel-plugin-relay/macro';
 import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
 import Post, {LoadingPost} from './Post';
+import Header from './Header';
 import {onegraphAuth} from './Environment';
 import {Route, Link, Switch} from 'react-router-dom';
 import idx from 'idx';
@@ -15,6 +16,7 @@ import {Grommet, Grid, Box, Heading, Text, Anchor} from 'grommet';
 import ScrollMemory from 'react-router-scroll-memory';
 import {matchPath} from 'react-router-dom';
 import UserContext from './UserContext';
+import Home from './Home';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
@@ -30,12 +32,14 @@ const theme = {
 };
 
 const postsRootQuery = graphql`
-  query App_Query
+  query App_Query($owner: String!, $repo: String!)
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+      #fixedVariables: {environmentVariable: ""}
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repo, owner: $owner) {
+        ...Header_repository
         ...Posts_repository
       }
     }
@@ -61,17 +65,23 @@ const PostsRoot = ({
     // TODO: better errors
     return <div>repository not found</div>;
   } else {
-    return <Posts repository={respository} />;
+    return (
+      <>
+        <Header repository={respository} />
+        <Posts repository={respository} />
+      </>
+    );
   }
 };
 
 export const postRootQuery = graphql`
-  query App_Post_Query($issueNumber: Int!)
+  query App_Post_Query($issueNumber: Int!, $owner: String!, $repo: String!)
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repo, owner: $owner) {
+        ...Header_repository
         issue(number: $issueNumber) {
           labels(first: 100) {
             nodes {
@@ -98,13 +108,19 @@ const PostRoot = ({
   if (!props) {
     return null;
   }
+  const repository = idx(props, _ => _.gitHub.repository);
   const post = idx(props, _ => _.gitHub.repository.issue);
   const labels = idx(post, _ => _.labels.nodes) || [];
-  if (!post || !labels.map(l => l.name).includes('publish')) {
+  if (!post || !labels.map(l => l.name.toLowerCase()).includes('publish')) {
     // TODO: better errors
     return <div>Post not found</div>;
   } else {
-    return <Post post={post} />;
+    return (
+      <>
+        <Header repository={repository} />
+        <Post post={post} />
+      </>
+    );
   }
 };
 
@@ -121,19 +137,24 @@ const RenderRoute = ({routeConfig, environment, match}) => (
 
 export const routes = [
   {
-    path: '/',
+    path: '/:owner/:repo',
     exact: true,
     strict: false,
     query: postsRootQuery,
-    getVariables: (match: any) => ({}),
+    getVariables: (match: any) => ({
+      owner: match.params.owner,
+      repo: match.params.repo,
+    }),
     component: PostsRoot,
   },
   {
-    path: '/post/:issueNumber',
+    path: '/:owner/:repo/post/:issueNumber',
     exact: true,
     strict: false,
     query: postRootQuery,
     getVariables: (match: any) => ({
+      owner: match.params.owner,
+      repo: match.params.repo,
       issueNumber: parseInt(match.params.issueNumber, 10),
     }),
     component: PostRoot,
@@ -188,28 +209,10 @@ export default class App extends React.Component<
                 {name: 'header', start: [0, 0], end: [1, 0]},
                 {name: 'main', start: [0, 1], end: [1, 1]},
               ]}>
-              <Box
-                gridArea="header"
-                direction="row"
-                align="center"
-                justify="between"
-                pad={{horizontal: 'medium', vertical: 'medium'}}
-                wrap={true}>
-                <Box align="center" direction="row">
-                  <OneGraphLogo width="96px" height="96px" />{' '}
-                  <Heading level={2}>
-                    <Link style={{color: 'inherit'}} to="/">
-                      OneGraph Product Updates
-                    </Link>
-                  </Heading>
-                </Box>
-                <Anchor href="https://onegraph.com">
-                  <Text size="small">Learn more about OneGraph</Text>
-                </Anchor>
-              </Box>
               <Box gridArea="main">
                 <ScrollMemory />
                 <Switch>
+                  <Route path="/" exact strict component={Home} />
                   {routes.map((routeConfig, i) => (
                     <Route
                       key={i}

@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 53abf3edaf17a842b570016ebc6a7858
+ * @relayHash 65652394993541ae55dec3ecf27c25b6
  */
 
 /* eslint-disable */
@@ -9,9 +9,12 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
+type Header_repository$ref = any;
 type Post_post$ref = any;
 export type App_Post_QueryVariables = {|
-  issueNumber: number
+  issueNumber: number,
+  owner: string,
+  repo: string,
 |};
 export type App_Post_QueryResponse = {|
   +gitHub: ?{|
@@ -23,7 +26,8 @@ export type App_Post_QueryResponse = {|
           |}>
         |},
         +$fragmentRefs: Post_post$ref,
-      |}
+      |},
+      +$fragmentRefs: Header_repository$ref,
     |}
   |}
 |};
@@ -37,9 +41,12 @@ export type App_Post_Query = {|
 /*
 query App_Post_Query(
   $issueNumber: Int!
+  $owner: String!
+  $repo: String!
 ) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
   gitHub {
-    repository(name: "onegraph-changelog", owner: "onegraph") {
+    repository(name: $repo, owner: $owner) {
+      ...Header_repository
       issue(number: $issueNumber) {
         labels(first: 100) {
           nodes {
@@ -52,6 +59,17 @@ query App_Post_Query(
       }
       id
     }
+  }
+}
+
+fragment Header_repository on GitHubRepository {
+  name
+  description
+  owner {
+    __typename
+    avatarUrl(size: 192)
+    login
+    id
   }
 }
 
@@ -81,6 +99,16 @@ fragment Post_post on GitHubIssue {
   comments {
     totalCount
   }
+  repository {
+    name
+    owner {
+      __typename
+      login
+      avatarUrl(size: 192)
+      id
+    }
+    id
+  }
 }
 */
 
@@ -91,18 +119,30 @@ var v0 = [
     "name": "issueNumber",
     "type": "Int!",
     "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "owner",
+    "type": "String!",
+    "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "repo",
+    "type": "String!",
+    "defaultValue": null
   }
 ],
 v1 = [
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "name",
-    "value": "onegraph-changelog"
+    "variableName": "repo"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "owner",
-    "value": "onegraph"
+    "variableName": "owner"
   }
 ],
 v2 = [
@@ -129,11 +169,38 @@ v4 = {
 v5 = {
   "kind": "ScalarField",
   "alias": null,
+  "name": "__typename",
+  "args": null,
+  "storageKey": null
+},
+v6 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "avatarUrl",
+  "args": [
+    {
+      "kind": "Literal",
+      "name": "size",
+      "value": 192
+    }
+  ],
+  "storageKey": "avatarUrl(size:192)"
+},
+v7 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v8 = {
+  "kind": "ScalarField",
+  "alias": null,
   "name": "id",
   "args": null,
   "storageKey": null
 },
-v6 = [
+v9 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -164,7 +231,7 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
@@ -207,6 +274,11 @@ return {
                     "args": null
                   }
                 ]
+              },
+              {
+                "kind": "FragmentSpread",
+                "name": "Header_repository",
+                "args": null
               }
             ]
           }
@@ -232,11 +304,34 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
+            "storageKey": null,
             "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
+              (v4/*: any*/),
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "description",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "owner",
+                "storageKey": null,
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  (v5/*: any*/),
+                  (v6/*: any*/),
+                  (v7/*: any*/),
+                  (v8/*: any*/)
+                ]
+              },
               {
                 "kind": "LinkedField",
                 "alias": null,
@@ -265,12 +360,12 @@ return {
                         "plural": true,
                         "selections": [
                           (v4/*: any*/),
-                          (v5/*: any*/)
+                          (v8/*: any*/)
                         ]
                       }
                     ]
                   },
-                  (v5/*: any*/),
+                  (v8/*: any*/),
                   {
                     "kind": "ScalarField",
                     "alias": null,
@@ -330,15 +425,9 @@ return {
                         "concreteType": "GitHubUser",
                         "plural": true,
                         "selections": [
-                          (v5/*: any*/),
+                          (v8/*: any*/),
                           (v4/*: any*/),
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "login",
-                            "args": null,
-                            "storageKey": null
-                          },
+                          (v7/*: any*/),
                           {
                             "kind": "ScalarField",
                             "alias": null,
@@ -388,7 +477,7 @@ return {
                         "args": null,
                         "concreteType": "GitHubReactingUserConnection",
                         "plural": false,
-                        "selections": (v6/*: any*/)
+                        "selections": (v9/*: any*/)
                       }
                     ]
                   },
@@ -400,11 +489,39 @@ return {
                     "args": null,
                     "concreteType": "GitHubIssueCommentConnection",
                     "plural": false,
-                    "selections": (v6/*: any*/)
+                    "selections": (v9/*: any*/)
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "name": "repository",
+                    "storageKey": null,
+                    "args": null,
+                    "concreteType": "GitHubRepository",
+                    "plural": false,
+                    "selections": [
+                      (v4/*: any*/),
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "name": "owner",
+                        "storageKey": null,
+                        "args": null,
+                        "concreteType": null,
+                        "plural": false,
+                        "selections": [
+                          (v5/*: any*/),
+                          (v7/*: any*/),
+                          (v6/*: any*/),
+                          (v8/*: any*/)
+                        ]
+                      },
+                      (v8/*: any*/)
+                    ]
                   }
                 ]
               },
-              (v5/*: any*/)
+              (v8/*: any*/)
             ]
           }
         ]
@@ -414,12 +531,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Post_Query",
-    "id": "2655bf86-1717-4e55-b71c-d013861c50ed",
+    "id": "14f310b8-2eea-4b4a-908c-97b426d8fd06",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'c5c353646fc89c67ae25daac48474c82';
+(node/*: any*/).hash = 'c4df1dca9624d26c6aff678c20ac282d';
 module.exports = node;

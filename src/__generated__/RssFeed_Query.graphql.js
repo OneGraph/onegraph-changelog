@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 669592e0d46ae92b84cadb07ea48d136
+ * @relayHash 988d098898f90a0adec6ed67780da425
  */
 
 /* eslint-disable */
@@ -9,10 +9,18 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-export type RssFeed_QueryVariables = {||};
+export type RssFeed_QueryVariables = {|
+  owner: string,
+  repo: string,
+|};
 export type RssFeed_QueryResponse = {|
   +gitHub: ?{|
     +repository: ?{|
+      +name: string,
+      +nameWithOwner: string,
+      +owner: {|
+        +avatarUrl: string
+      |},
       +issues: {|
         +nodes: ?$ReadOnlyArray<?{|
           +id: string,
@@ -28,7 +36,7 @@ export type RssFeed_QueryResponse = {|
             |}>
           |},
         |}>
-      |}
+      |},
     |}
   |}
 |};
@@ -40,10 +48,20 @@ export type RssFeed_Query = {|
 
 
 /*
-query RssFeed_Query @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
+query RssFeed_Query(
+  $owner: String!
+  $repo: String!
+) @persistedQueryConfiguration(accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}) {
   gitHub {
-    repository(name: "onegraph-changelog", owner: "onegraph") {
-      issues(first: 20, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish"]) {
+    repository(name: $repo, owner: $owner) {
+      name
+      nameWithOwner
+      owner {
+        __typename
+        avatarUrl
+        id
+      }
+      issues(first: 20, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish", "Publish"]) {
         nodes {
           id
           number
@@ -68,28 +86,63 @@ query RssFeed_Query @persistedQueryConfiguration(accessToken: {environmentVariab
 const node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
-    "kind": "Literal",
-    "name": "name",
-    "value": "onegraph-changelog"
+    "kind": "LocalArgument",
+    "name": "owner",
+    "type": "String!",
+    "defaultValue": null
   },
   {
-    "kind": "Literal",
-    "name": "owner",
-    "value": "onegraph"
+    "kind": "LocalArgument",
+    "name": "repo",
+    "type": "String!",
+    "defaultValue": null
   }
 ],
-v1 = {
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "name",
+    "variableName": "repo"
+  },
+  {
+    "kind": "Variable",
+    "name": "owner",
+    "variableName": "owner"
+  }
+],
+v2 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "name",
+  "args": null,
+  "storageKey": null
+},
+v3 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "nameWithOwner",
+  "args": null,
+  "storageKey": null
+},
+v4 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "avatarUrl",
+  "args": null,
+  "storageKey": null
+},
+v5 = {
   "kind": "ScalarField",
   "alias": null,
   "name": "id",
   "args": null,
   "storageKey": null
 },
-v2 = {
+v6 = {
   "kind": "LinkedField",
   "alias": null,
   "name": "issues",
-  "storageKey": "issues(first:20,labels:[\"publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
+  "storageKey": "issues(first:20,labels:[\"publish\",\"Publish\"],orderBy:{\"direction\":\"DESC\",\"field\":\"CREATED_AT\"})",
   "args": [
     {
       "kind": "Literal",
@@ -100,7 +153,8 @@ v2 = {
       "kind": "Literal",
       "name": "labels",
       "value": [
-        "publish"
+        "publish",
+        "Publish"
       ]
     },
     {
@@ -124,7 +178,7 @@ v2 = {
       "concreteType": "GitHubIssue",
       "plural": true,
       "selections": [
-        (v1/*: any*/),
+        (v5/*: any*/),
         {
           "kind": "ScalarField",
           "alias": null,
@@ -177,14 +231,8 @@ v2 = {
               "concreteType": "GitHubUser",
               "plural": true,
               "selections": [
-                (v1/*: any*/),
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "name",
-                  "args": null,
-                  "storageKey": null
-                },
+                (v5/*: any*/),
+                (v2/*: any*/),
                 {
                   "kind": "ScalarField",
                   "alias": null,
@@ -207,7 +255,7 @@ return {
     "name": "RssFeed_Query",
     "type": "Query",
     "metadata": null,
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "selections": [
       {
         "kind": "LinkedField",
@@ -222,12 +270,26 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
-            "args": (v0/*: any*/),
+            "storageKey": null,
+            "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*: any*/),
+              (v3/*: any*/),
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "owner",
+                "storageKey": null,
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  (v4/*: any*/)
+                ]
+              },
+              (v6/*: any*/)
             ]
           }
         ]
@@ -237,7 +299,7 @@ return {
   "operation": {
     "kind": "Operation",
     "name": "RssFeed_Query",
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "selections": [
       {
         "kind": "LinkedField",
@@ -252,13 +314,35 @@ return {
             "kind": "LinkedField",
             "alias": null,
             "name": "repository",
-            "storageKey": "repository(name:\"onegraph-changelog\",owner:\"onegraph\")",
-            "args": (v0/*: any*/),
+            "storageKey": null,
+            "args": (v1/*: any*/),
             "concreteType": "GitHubRepository",
             "plural": false,
             "selections": [
               (v2/*: any*/),
-              (v1/*: any*/)
+              (v3/*: any*/),
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "owner",
+                "storageKey": null,
+                "args": null,
+                "concreteType": null,
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "__typename",
+                    "args": null,
+                    "storageKey": null
+                  },
+                  (v4/*: any*/),
+                  (v5/*: any*/)
+                ]
+              },
+              (v6/*: any*/),
+              (v5/*: any*/)
             ]
           }
         ]
@@ -268,12 +352,12 @@ return {
   "params": {
     "operationKind": "query",
     "name": "RssFeed_Query",
-    "id": "a6c0c6c6-5afe-4adc-974e-f2aff6ed9d85",
+    "id": "2dd2f27e-1f1b-45f8-87e1-5f20aaff2fc4",
     "text": null,
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'bd7322d53c6f4074b6313e86410452e2';
+(node/*: any*/).hash = '35032a0b58d5ce1fa7b6b46bed9cc190';
 module.exports = node;

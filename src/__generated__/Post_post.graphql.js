@@ -38,6 +38,13 @@ export type Post_post = {|
   +comments: {|
     +totalCount: number
   |},
+  +repository: {|
+    +name: string,
+    +owner: {|
+      +login: string,
+      +avatarUrl: string,
+    |},
+  |},
   +$refType: Post_post$ref,
 |};
 export type Post_post$data = Post_post;
@@ -56,7 +63,21 @@ var v0 = {
   "args": null,
   "storageKey": null
 },
-v1 = [
+v1 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "name",
+  "args": null,
+  "storageKey": null
+},
+v2 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "login",
+  "args": null,
+  "storageKey": null
+},
+v3 = [
   {
     "kind": "ScalarField",
     "alias": null,
@@ -133,20 +154,8 @@ return {
           "plural": true,
           "selections": [
             (v0/*: any*/),
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "name",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "login",
-              "args": null,
-              "storageKey": null
-            },
+            (v1/*: any*/),
+            (v2/*: any*/),
             {
               "kind": "ScalarField",
               "alias": null,
@@ -196,7 +205,7 @@ return {
           "args": null,
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
-          "selections": (v1/*: any*/)
+          "selections": (v3/*: any*/)
         }
       ]
     },
@@ -208,11 +217,48 @@ return {
       "args": null,
       "concreteType": "GitHubIssueCommentConnection",
       "plural": false,
-      "selections": (v1/*: any*/)
+      "selections": (v3/*: any*/)
+    },
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "repository",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "GitHubRepository",
+      "plural": false,
+      "selections": [
+        (v1/*: any*/),
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "owner",
+          "storageKey": null,
+          "args": null,
+          "concreteType": null,
+          "plural": false,
+          "selections": [
+            (v2/*: any*/),
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "avatarUrl",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "size",
+                  "value": 192
+                }
+              ],
+              "storageKey": "avatarUrl(size:192)"
+            }
+          ]
+        }
+      ]
     }
   ]
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '5c708b3c7a2f3d2a589596e27b4fcc3f';
+(node/*: any*/).hash = 'c42be0bb7297510de7cfcf0efd948294';
 module.exports = node;

@@ -5,20 +5,26 @@ import idx from 'idx';
 import graphql from 'babel-plugin-relay/macro';
 import {environment} from './Environment';
 import {fetchQuery} from 'react-relay';
+import {titleCase} from 'change-case';
 
 import type {RssFeed_QueryResponse} from './__generated__/RssFeed_Query.graphql';
 
 const feedQuery = graphql`
-  query RssFeed_Query
+  query RssFeed_Query($owner: String!, $repo: String!)
     @persistedQueryConfiguration(
       accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
     ) {
     gitHub {
-      repository(name: "onegraph-changelog", owner: "onegraph") {
+      repository(name: $repo, owner: $owner) {
+        name
+        nameWithOwner
+        owner {
+          avatarUrl
+        }
         issues(
           first: 20
           orderBy: {direction: DESC, field: CREATED_AT}
-          labels: ["publish"]
+          labels: ["publish", "Publish"]
         ) {
           nodes {
             id
@@ -40,31 +46,43 @@ const feedQuery = graphql`
   }
 `;
 
-export async function buildFeed() {
-  const data: RssFeed_QueryResponse = await fetchQuery(
-    environment,
-    feedQuery,
-    {},
-  );
+export async function buildFeed({
+  owner,
+  repo,
+  baseUrl,
+}: {
+  owner: string,
+  repo: string,
+  baseUrl: string,
+}) {
+  const data: RssFeed_QueryResponse = await fetchQuery(environment, feedQuery, {
+    owner,
+    repo,
+  });
 
+  const repository = idx(data, _ => _.gitHub.repository);
+
+  if (!repository) {
+    return null;
+  }
   const posts = idx(data, _ => _.gitHub.repository.issues.nodes) || [];
   const latestPost = posts[0];
 
   const feed = new Feed({
-    title: 'OneGraph Product Updates',
+    title: titleCase(repository.name),
     description:
       'Keep up to date with the latest product features from OneGraph',
-    id: 'https://onegraph.com/changelog',
-    link: 'https://onegraph.com/changelog',
+    id: `${baseUrl}/${repository.nameWithOwner}`,
+    link: `${baseUrl}/${repository.nameWithOwner}`,
     language: 'en',
-    image: 'https://onegraph.com/changelog/logo.png',
-    favicon: 'https://onegraph.com/favicon.ico',
+    image: repository.owner.avatarUrl,
+    favicon: repository.owner.avatarUrl,
     updated: latestPost ? new Date(latestPost.createdAt) : null,
     generator: '',
     feedLinks: {
-      json: 'https://onegraph.com/changelog/feed.json',
-      atom: 'https://onegraph.com/changelog/feed.atom',
-      rss2: 'https://onegraph.com/changelog/feed.rss',
+      json: `${baseUrl}/${repository.nameWithOwner}/feed.json`,
+      atom: `${baseUrl}/${repository.nameWithOwner}/feed.atom`,
+      rss2: `${baseUrl}/${repository.nameWithOwner}/feed.rss`,
     },
   });
 
@@ -73,7 +91,7 @@ export async function buildFeed() {
       feed.addItem({
         title: post.title,
         id: post.id,
-        link: `https://onegraph.com/changelog/post/${post.number}`,
+        link: `${baseUrl}/${repository.nameWithOwner}/post/${post.number}`,
         content: post.bodyHTML,
         author: (post.assignees.nodes || []).map(node =>
           node

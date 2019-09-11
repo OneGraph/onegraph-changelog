@@ -12,11 +12,21 @@ import serialize from 'serialize-javascript';
 import {RecordSource} from 'relay-runtime';
 import RelayQueryResponseCache from './relayResponseCache';
 import {buildFeed} from './RssFeed';
+import {titleCase} from 'change-case';
+import PageContext from './PageContext';
 
 // $FlowFixMe
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
-function buildHtml({markup, styleTags, bootstrapData, basePath}) {
+function buildHtml({
+  markup,
+  styleTags,
+  bootstrapData,
+  repo,
+  owner,
+  pageContext,
+}) {
+  const basePath = repo && owner ? escapeHtml(`/${repo}/${owner}`) : null;
   const bootstrapScript = bootstrapData
     ? `<script>
     window.__RELAY_BOOTSTRAP_DATA__ = JSON.parse(${serialize(
@@ -30,24 +40,29 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="alternate" type="application/rss+xml" 
+    ${
+      pageContext.favicon
+        ? `<link type="image/x-icon" rel="shortcut icon" href="${escapeHtml(
+            pageContext.favicon,
+          )}" />`
+        : `<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />`
+    }
+    ${
+      basePath
+        ? `<link rel="alternate" type="application/rss+xml" 
           title="RSS Feed" 
-          href="${basePath ? basePath : ''}/feed.rss" />
+          href="${basePath}/feed.rss" />
     <link rel="alternate" 
-          href="${basePath ? basePath : ''}/feed.atom" 
+          href="${basePath}/feed.atom" 
           title="Atom feed" 
-          type="application/atom+xml" />
+          type="application/atom+xml" />`
+        : ''
+    }
+    
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Follow along with OneGraph as we take over the world with GraphQL."
-    />
-    <link rel="manifest" href="/manifest.json" />
-
-    <title>OneGraph Product Updates</title>
+    <title>${escapeHtml(pageContext.title ? pageContext.title : '')}</title>
     ${styleTags ? styleTags : ''}
     ${
       assets.client.css
@@ -62,7 +77,7 @@ function buildHtml({markup, styleTags, bootstrapData, basePath}) {
   </head>
   <body>
     <div id="root">${markup ? markup : ''}</div>
-    <script>window.__basename__ = "${basePath || '/'}";</script>
+    <script>window.__basename__ = '/';</script>
     ${bootstrapScript ? bootstrapScript : ''}
   </body>
 </html>`;
@@ -73,8 +88,10 @@ const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 function createApp(basePath: ?string) {
   const appRouter = express.Router();
   appRouter
-    .get('/feed.:ext', async (req, res) => {
-      const extension = req.params.ext;
+    .get('/:owner/:repo/feed.:extension', async (req, res) => {
+      const {owner, repo, extension} = req.params;
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+
       if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {
         res
           .status(404)
@@ -82,21 +99,27 @@ function createApp(basePath: ?string) {
         return;
       }
 
-      const feed = await buildFeed();
-      const body =
-        extension === 'rss'
-          ? feed.rss2()
-          : extension === 'atom'
-          ? feed.atom1()
-          : feed.json1();
-      res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
-      res.set(
-        'Content-Type',
-        extension === 'json' ? 'application/json' : 'application/xml',
-      );
-      res.status(200).send(body);
+      const feed = await buildFeed({owner, repo, baseUrl});
+      if (!feed) {
+        res.sendStatus(404);
+      } else {
+        const body =
+          extension === 'rss'
+            ? feed.rss2()
+            : extension === 'atom'
+            ? feed.atom1()
+            : feed.json1();
+        res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+        res.set(
+          'Content-Type',
+          extension === 'json' ? 'application/json' : 'application/xml',
+        );
+        res.status(200).send(body);
+      }
     })
-    .get('/*', async (req, res) => {
+    .get('/:owner?/:repo?/*', async (req, res) => {
+      const {repo, owner} = req.params;
+      const pageContext = {};
       try {
         res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
         const recordSource = new RecordSource();
@@ -126,7 +149,20 @@ function createApp(basePath: ?string) {
         const markup = renderToString(
           sheet.collectStyles(
             <StaticRouter context={context} location={req.url}>
-              <App environment={environment} />
+              <PageContext.Provider
+                value={{
+                  setTitle: title => {
+                    pageContext.title = title;
+                  },
+                  setFavicon: url => {
+                    pageContext.favicon = url;
+                  },
+                  setDescription: text => {
+                    pageContext.description = text;
+                  },
+                }}>
+                <App environment={environment} />
+              </PageContext.Provider>
             </StaticRouter>,
           ),
         );
@@ -139,7 +175,9 @@ function createApp(basePath: ?string) {
               markup,
               styleTags,
               bootstrapData: recordSource.toJSON(),
-              basePath,
+              repo,
+              owner,
+              pageContext,
             }),
           );
         }
@@ -151,6 +189,9 @@ function createApp(basePath: ?string) {
             styleTags: null,
             bootstrapData: null,
             basePath,
+            repo,
+            owner,
+            pageContext,
           }),
         );
       }
@@ -161,6 +202,50 @@ function createApp(basePath: ?string) {
     .disable('x-powered-by')
     .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
     .use(basePath || '/', appRouter);
+}
+
+function escapeHtml(str: string): string {
+  const match = /["'&<>]/.exec(str);
+
+  if (!match) {
+    return str;
+  }
+
+  let escape;
+  let html = '';
+  let index = 0;
+  let lastIndex = 0;
+
+  for (index = match.index; index < str.length; index++) {
+    switch (str.charCodeAt(index)) {
+      case 34: // "
+        escape = '&quot;';
+        break;
+      case 38: // &
+        escape = '&amp;';
+        break;
+      case 39: // '
+        escape = '&#39;';
+        break;
+      case 60: // <
+        escape = '&lt;';
+        break;
+      case 62: // >
+        escape = '&gt;';
+        break;
+      default:
+        continue;
+    }
+
+    if (lastIndex !== index) {
+      html += str.substring(lastIndex, index);
+    }
+
+    lastIndex = index + 1;
+    html += escape;
+  }
+
+  return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
 }
 
 export default createApp;

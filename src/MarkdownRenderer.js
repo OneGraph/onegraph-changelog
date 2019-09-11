@@ -82,6 +82,7 @@ export default class MarkdownRenderer extends React.PureComponent<Props> {
         renderers={{
           code: CodeBlock,
           image: Image,
+          link: props => <a {...props} rel="noopener noreferrer" />,
         }}
       />
     );

@@ -14,7 +14,7 @@ import EmojiIcon from './emojiIcon';
 import AddIcon from './addIcon';
 import Tippy from '@tippy.js/react';
 import 'tippy.js/themes/light-border.css';
-import {Link} from 'react-router-dom';
+import Link from './PreloadLink';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
@@ -194,7 +194,7 @@ type Props = {
   post: Post_post,
 };
 
-function PostBox({children}: {children: React.Node}) {
+export function PostBox({children}: {children: React.Node}) {
   return (
     <Box
       margin="medium"
@@ -218,16 +218,20 @@ const Post = ({relay, post}: Props) => {
     g => g.users.totalCount > 0,
   );
   const authors = post.assignees.nodes || [];
+  const owner = post.repository.owner.login;
+  const repo = post.repository.name;
   return (
     <PostBox>
       <Box pad="medium">
         <Heading level={3} margin="none">
           <Link
             style={{color: 'inherit'}}
-            to={`/post/${post.number}`}
+            to={`/${owner}/${repo}/post/${post.number}`}
             onMouseOver={() =>
               fetchQuery(relay.environment, postRootQuery, {
                 issueNumber: post.number,
+                owner,
+                repo,
               })
             }>
             {post.title}
@@ -374,6 +378,13 @@ export default createFragmentContainer(Post, {
       }
       comments {
         totalCount
+      }
+      repository {
+        name
+        owner {
+          login
+          avatarUrl(size: 192)
+        }
       }
     }
   `,

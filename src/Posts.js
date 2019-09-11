@@ -3,11 +3,13 @@
 import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
 import {createPaginationContainer, type RelayProp} from 'react-relay';
-import Post from './Post';
+import Post, {PostBox} from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
 import LoadingSpinner from './loadingSpinner';
 import idx from 'idx';
-import {Box} from 'grommet';
+import {Box, Text, Heading, Paragraph, Anchor} from 'grommet';
+import GitHubLoginButton from './GitHubLoginButton';
+import UserContext from './UserContext';
 
 type Props = {|
   relay: RelayProp,
@@ -16,6 +18,7 @@ type Props = {|
 
 // TODO: pagination. Can do pages or infinite scroll
 const Posts = ({relay, repository}: Props) => {
+  const {login, isLoggedIn} = React.useContext(UserContext);
   const [isLoading, setIsLoading] = React.useState(false);
   const scheduledRef = React.useRef(false);
   const handleScroll = React.useCallback(() => {
@@ -45,9 +48,61 @@ const Posts = ({relay, repository}: Props) => {
     };
   }, [handleScroll]);
 
+  const posts = repository.issues.edges || [];
+
+  if (!posts.length) {
+    return (
+      <PostBox>
+        <Box pad="medium">
+          <Heading level={3}>
+            There are no posts for {repository.nameWithOwner}...
+          </Heading>
+          <Text size="small">
+            <p>
+              ...but you can change that if you are a collaborator on the repo!
+            </p>
+            <p>
+              This blog is built on GitHub issues. It automatically pulls any
+              issue from the{' '}
+              <Anchor
+                rel="noopener noreferrer"
+                target="_blank"
+                href={repository.url}>
+                {repository.nameWithOwner}
+              </Anchor>{' '}
+              repo that has a <code>publish</code> tag.
+            </p>
+            <p>
+              <Anchor
+                rel="noopener noreferrer"
+                target="_blank"
+                href={`https://github.com/${repository.nameWithOwner}/issues/new`}>
+                Create a new issue
+              </Anchor>
+              , give it the <code>publish</code> tag, then come back here and
+              refresh to see your new blog post.
+            </p>
+            <p>
+              We provide a default GitHub auth that caches requests to avoid
+              rate limits.{' '}
+              {isLoggedIn
+                ? "You're logged in with GitHub, so your requests will bypass the cache."
+                : 'You can log in with your GitHub credentials to bypass the cache.'}
+            </p>
+            {isLoggedIn ? null : (
+              <p>
+                <GitHubLoginButton onClick={login} />
+              </p>
+            )}
+          </Text>
+        </Box>
+      </PostBox>
+    );
+  }
+
   return (
     <Box>
-      {(repository.issues.edges || []).map(e =>
+      {posts.map(e =>
         e && e.node ? <Post key={e.node.id} post={e.node} /> : null,
       )}
       {isLoading ? (
@@ -77,11 +132,13 @@ export default createPaginationContainer(
             defaultValue: {direction: DESC, field: CREATED_AT}
           }
         ) {
+        nameWithOwner
+        url
         issues(
           first: $count
           after: $cursor
           orderBy: $orderBy
-          labels: ["publish"]
+          labels: ["publish", "Publish"]
         ) @connection(key: "Posts_posts_issues") {
           edges {
             node {
@@ -100,6 +157,8 @@ export default createPaginationContainer(
     },
     getVariables(props, {count, cursor}, fragmentVariables) {
       return {
+        repo: props.repository.name,
+        owner: props.repository.owner.login,
         count: count,
         cursor,
         orderBy: fragmentVariables.orderBy,
@@ -108,6 +167,8 @@ export default createPaginationContainer(
 
     query: graphql`
       query PostsPaginationQuery(
+        $repo: String!
+        $owner: String!
         $count: Int!
         $cursor: String
         $orderBy: GitHubIssueOrder
@@ -116,8 +177,7 @@ export default createPaginationContainer(
           accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
         ) {
         gitHub {
-          repository(name: "onegraph-changelog", owner: "onegraph") {
-            __typename
+          repository(name: $repo, owner: $owner) {
             ...Posts_repository
               @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
           }
