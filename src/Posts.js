@@ -95,7 +95,13 @@ const Posts = ({relay, repository}: Props) => {
               </p>
             )}
             <p style={{display: 'flex', justifyContent: 'center'}}>
-              <video src="/example.mp4" controls width="404px" height="720px" />
+              <video
+                src="/example.mp4"
+                controls
+                width="404px"
+                height="720px"
+                style={{maxWidth: '100%'}}
+              />
             </p>
           </Text>
         </Box>

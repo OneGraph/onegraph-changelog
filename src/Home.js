@@ -69,6 +69,9 @@ export default function Home(props: any) {
         </Anchor>
         .
       </P>
+      <P>
+        <img style={{maxWidth: '100%'}} src="/changelog_screenshot.png" />
+      </P>
       <Heading level={4}>Try it out with your repo</Heading>
       <P>
         This site is set up to create a blog from the GitHub issues on any repo.
@@ -84,7 +87,13 @@ export default function Home(props: any) {
       </P>
 
       <P style={{display: 'flex', justifyContent: 'center'}}>
-        <video src="/example.mp4" controls width="404px" height="720px" />
+        <video
+          src="/example.mp4"
+          controls
+          width="404px"
+          height="720px"
+          style={{maxWidth: '100%'}}
+        />
       </P>
 
       <P>
