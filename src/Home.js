@@ -126,11 +126,11 @@ export default function Home(props: any) {
       <Heading level={4}>How it works</Heading>
       <P>
         The site is powered by <Anchor href="https://relay.dev">Relay</Anchor>,
-        a client-side GraphQL client with great support for persisted queries.
-        We rely on OneGraph's persisted GraphQL queries to fetch data from
-        GitHub. Persisted queries on OneGraph support attaching an auth to the
-        query. Without the ability to attach an auth, we would have to require
-        users to log in to GitHub to see the posts.
+        a GraphQL client with great support for persisted queries. We rely on
+        OneGraph's persisted GraphQL queries to fetch data from GitHub because
+        it supports attaching an auth to the query. Without the ability to
+        attach an auth, we would have to require users to log in to GitHub to
+        see the posts.
       </P>
       <P>
         The persisted queries also limit the data that logged-out users can
