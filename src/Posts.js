@@ -94,6 +94,9 @@ const Posts = ({relay, repository}: Props) => {
                 <GitHubLoginButton onClick={login} />
               </p>
             )}
+            <p style={{display: 'flex', justifyContent: 'center'}}>
+              <video src="/example.mp4" controls width="404px" height="720px" />
+            </p>
           </Text>
         </Box>
       </PostBox>
