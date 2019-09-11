@@ -141,7 +141,11 @@ export default createPaginationContainer(
             defaultValue: {direction: DESC, field: CREATED_AT}
           }
         ) {
+        name
         nameWithOwner
+        owner {
+          login
+        }
         url
         issues(
           first: $count

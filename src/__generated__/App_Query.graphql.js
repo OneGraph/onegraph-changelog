@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 902cc813c4a96a01bf3264944786d44a
+ * @relayHash 2d77048cc3dec1223de39891b6efde82
  */
 
 /* eslint-disable */
@@ -55,7 +55,13 @@ fragment Header_repository on GitHubRepository {
 }
 
 fragment Posts_repository on GitHubRepository {
+  name
   nameWithOwner
+  owner {
+    __typename
+    login
+    id
+  }
   url
   issues(first: 10, orderBy: {direction: DESC, field: CREATED_AT}, labels: ["publish", "Publish"]) {
     edges {
@@ -549,7 +555,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "App_Query",
-    "id": "fb3aaa82-b71d-4301-a613-218f62883220",
+    "id": "b27897cc-189e-4bb1-81a6-30c5288d33d7",
     "text": null,
     "metadata": {}
   }
