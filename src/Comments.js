@@ -164,6 +164,7 @@ export default createPaginationContainer(
           @connection(key: "Comments_post_comments") {
           edges {
             node {
+              id
               ...Comment_comment
             }
           }
