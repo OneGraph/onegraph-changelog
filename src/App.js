@@ -7,6 +7,7 @@ import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
 import Post from './Post';
 import Header from './Header';
+import Comments from './Comments';
 import {onegraphAuth} from './Environment';
 import {Route, Link, Switch} from 'react-router-dom';
 import idx from 'idx';
@@ -24,9 +25,12 @@ import type {Environment} from 'relay-runtime';
 import type {RelayNetworkError} from 'react-relay';
 
 const theme = {
+  name: 'onegraph',
+  rounding: 4,
+  spacing: 24,
   global: {
     font: {
-      family: 'Helvetica,Arial,sans-serif',
+      family: 'Helvetica Neue,Helvetica,Arial,sans-serif',
       size: '14px',
       height: '20px',
     },
@@ -104,7 +108,9 @@ export const postRootQuery = graphql`
               name
             }
           }
+          id
           ...Post_post
+          ...Comments_post
         }
       }
     }
@@ -133,7 +139,10 @@ const PostRoot = ({
     return (
       <>
         <Header repository={repository} />
-        <Post post={post} />
+        <Box>
+          <Post post={post} />
+          <Comments post={post} postId={post.id} />
+        </Box>
       </>
     );
   }

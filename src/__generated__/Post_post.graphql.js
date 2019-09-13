@@ -38,7 +38,7 @@ export type Post_post = {|
       |}>,
     |},
   |}>,
-  +comments: {|
+  +commentsCount: {|
     +totalCount: number
   |},
   +repository: {|
@@ -232,7 +232,7 @@ return {
     },
     {
       "kind": "LinkedField",
-      "alias": null,
+      "alias": "commentsCount",
       "name": "comments",
       "storageKey": null,
       "args": null,
@@ -283,5 +283,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'dab04bb91367e8da1cd7926215c93546';
+(node/*: any*/).hash = 'aa420761ef3f719df2d4bb187608e494';
 module.exports = node;

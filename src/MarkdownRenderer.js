@@ -7,6 +7,7 @@ import GifPlayer from './GifPlayer';
 
 type Props = {
   source: string,
+  escapeHtml: boolean,
 };
 
 class CodeBlock extends React.PureComponent<
@@ -76,6 +77,7 @@ function Image(props) {
 
 export default class MarkdownRenderer extends React.PureComponent<Props> {
   render() {
+    const {escapeHtml = true} = this.props;
     return (
       <ReactMarkdown
         source={this.props.source}
