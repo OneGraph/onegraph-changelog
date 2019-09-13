@@ -5,7 +5,7 @@ import './App.css';
 import graphql from 'babel-plugin-relay/macro';
 import {QueryRenderer, fetchQuery} from 'react-relay';
 import Posts from './Posts';
-import Post, {LoadingPost} from './Post';
+import Post from './Post';
 import Header from './Header';
 import {onegraphAuth} from './Environment';
 import {Route, Link, Switch} from 'react-router-dom';
@@ -21,6 +21,7 @@ import Home from './Home';
 
 import type {App_ViewerQueryResponse} from './__generated__/App_Query.graphql';
 import type {Environment} from 'relay-runtime';
+import type {RelayNetworkError} from 'react-relay';
 
 const theme = {
   global: {
@@ -47,7 +48,8 @@ const postsRootQuery = graphql`
   }
 `;
 
-const ErrorBox = ({error}) => {
+const ErrorBox = ({error}: {error: Error}) => {
+  // $FlowFixMe
   const relayError = idx(error, _ => _.source.errors[0].message);
   return (
     <Box

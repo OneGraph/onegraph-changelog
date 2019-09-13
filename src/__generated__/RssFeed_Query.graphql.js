@@ -352,7 +352,7 @@ return {
   "params": {
     "operationKind": "query",
     "name": "RssFeed_Query",
-    "id": "799e283f-cc87-4906-b831-421e3dda0647",
+    "id": "bb3fd85e-f8ad-4b55-80d6-20170efb5a12",
     "text": null,
     "metadata": {}
   }

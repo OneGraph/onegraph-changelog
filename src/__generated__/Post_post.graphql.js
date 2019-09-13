@@ -32,7 +32,10 @@ export type Post_post = {|
     +content: GitHubReactionContent,
     +viewerHasReacted: boolean,
     +users: {|
-      +totalCount: number
+      +totalCount: number,
+      +nodes: ?$ReadOnlyArray<?{|
+        +login: string
+      |}>,
     |},
   |}>,
   +comments: {|
@@ -77,15 +80,13 @@ v2 = {
   "args": null,
   "storageKey": null
 },
-v3 = [
-  {
-    "kind": "ScalarField",
-    "alias": null,
-    "name": "totalCount",
-    "args": null,
-    "storageKey": null
-  }
-];
+v3 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "totalCount",
+  "args": null,
+  "storageKey": null
+};
 return {
   "kind": "Fragment",
   "name": "Post_post",
@@ -201,11 +202,31 @@ return {
           "kind": "LinkedField",
           "alias": null,
           "name": "users",
-          "storageKey": null,
-          "args": null,
+          "storageKey": "users(first:11)",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "first",
+              "value": 11
+            }
+          ],
           "concreteType": "GitHubReactingUserConnection",
           "plural": false,
-          "selections": (v3/*: any*/)
+          "selections": [
+            (v3/*: any*/),
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "nodes",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "GitHubUser",
+              "plural": true,
+              "selections": [
+                (v2/*: any*/)
+              ]
+            }
+          ]
         }
       ]
     },
@@ -217,7 +238,9 @@ return {
       "args": null,
       "concreteType": "GitHubIssueCommentConnection",
       "plural": false,
-      "selections": (v3/*: any*/)
+      "selections": [
+        (v3/*: any*/)
+      ]
     },
     {
       "kind": "LinkedField",
@@ -260,5 +283,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'c42be0bb7297510de7cfcf0efd948294';
+(node/*: any*/).hash = 'dab04bb91367e8da1cd7926215c93546';
 module.exports = node;
