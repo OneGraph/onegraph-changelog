@@ -374,7 +374,9 @@ const Post = ({relay, post}: Props) => {
             {formatDate(new Date(post.createdAt), 'MMM do, yyyy')}
           </Text>
           <Text size="xsmall">
-            <Link to={`/post/${post.number}#comments`}>view comments</Link>
+            <Link to={`/${owner}/${repo}/post/${post.number}#comments`}>
+              view comments
+            </Link>
           </Text>
         </Box>
         <Text size="small">
