@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react';
-import {Link, matchPath} from 'react-router-dom';
+import {matchPath} from 'react-router-dom';
+import {HashLink} from 'react-router-hash-link';
 import {routes} from './App';
 import {fetchQuery} from 'react-relay';
 import {environment} from './Environment';
@@ -25,5 +26,5 @@ export default function PreloadLink(props: any) {
   const preload = () => {
     runQueryForLink(props.to);
   };
-  return <Link onClick={preload} onMouseOver={preload} {...props} />;
+  return <HashLink onClick={preload} onMouseOver={preload} {...props} />;
 }

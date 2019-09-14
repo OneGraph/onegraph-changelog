@@ -15,7 +15,6 @@ import AddIcon from './addIcon';
 import Tippy, {TippyGroup} from '@tippy.js/react';
 import 'tippy.js/themes/light-border.css';
 import Link from './PreloadLink';
-import {HashLink} from 'react-router-hash-link';
 import {postRootQuery} from './App';
 import GitHubLoginButton from './GitHubLoginButton';
 import {NotificationContext} from './Notifications';
@@ -372,12 +371,10 @@ const Post = ({relay, post}: Props) => {
 
         <Box direction="row" justify="between">
           <Text size="xsmall">
-            {formatDate(new Date(post.createdAt), 'MMM eo, yyyy')}
+            {formatDate(new Date(post.createdAt), 'MMM do, yyyy')}
           </Text>
           <Text size="xsmall">
-            <HashLink to={`/${owner}/${repo}/post/${post.number}#comments`}>
-              view comments
-            </HashLink>
+            <Link to={`/post/${post.number}#comments`}>view comments</Link>
           </Text>
         </Box>
         <Text size="small">
