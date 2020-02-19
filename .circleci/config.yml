@@ -29,6 +29,7 @@ jobs:
             - firebase.json
             - .firebaserc
             - index.js
+            - package.json
   deploy:
     docker:
       - image: node:10
