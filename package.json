@@ -84,8 +84,5 @@
   },
   "babelMacros": {
     "relay": {}
-  },
-  "engines": {
-    "node": "10"
   }
 }
