@@ -1,0 +1,7 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/onegraph-prod/onegraph-changelog', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/onegraph-prod/onegraph-changelog']
+
+images: ['gcr.io/onegraph-prod/onegraph-changelog']

@@ -48,6 +48,8 @@
     "build:netlify-functions": "NODE_ENV=development netlify-lambda build netlify-functions",
     "deploy:netlify": "yarn build && yarn build:netlify-functions && netlify deploy",
     "deploy:fly": "flyctl deploy .",
+    "deploy:cloudrun:staging": "gcloud builds submit --config=cloudbuild-staging.yaml && gcloud run deploy onegraph-changelog-staging --image gcr.io/onegraph-prod/onegraph-changelog-staging --platform managed --concurrency 80 --max-instances 40 --timeout 10m",
+    "deploy:cloudrun:prod": "gcloud builds submit --config=cloudbuild.yaml && gcloud run deploy onegraph-changelog --image gcr.io/onegraph-prod/onegraph-changelog --platform managed --concurrency 80 --max-instances 40 --timeout 10m",
     "netlify:serve": "NODE_ENV=development netlify-lambda serve netlify-functions",
     "prettier": "prettier --write \"src/**/*.js\" README.md"
   },

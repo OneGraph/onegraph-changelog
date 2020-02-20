@@ -53,10 +53,16 @@ jobs:
       - attach_workspace:
           at: ./
       - run:
+          name: 'Setup gcloud'
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project onegraph-prod
+
+      - run:
           name: 'Deploy to Firebase'
           command: |
             yarn firebase-deploy-directory --project oph-dashboard-staging --subpath changelog --directory build/public/ --commit --token "$FIREBASE_TOKEN"
-            yarn firebase deploy --debug -P staging --only functions --token "$FIREBASE_TOKEN"
+            yarn deploy:cloudrun:staging
 
 workflows:
   version: 2.1
