@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build_changelog:
     docker:
-      - image: node:10
+      - image: node:12
     resource_class: "xlarge"
     environment:
       - TERM: dumb
@@ -30,6 +30,8 @@ jobs:
             - .firebaserc
             - index.js
             - package.json
+            - cloudbuild.yaml
+            - cloudbuild-staging.yaml
   deploy:
     docker:
       - image: node:10
