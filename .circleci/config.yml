@@ -46,7 +46,7 @@ jobs:
 
   staging_deploy:
     docker:
-      - image: node:10
+      - image: google/cloud-sdk:latest
     environment:
       - TERM: dumb
     steps:
