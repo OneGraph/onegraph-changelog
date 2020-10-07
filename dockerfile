@@ -36,6 +36,7 @@ COPY .env.local .env
 COPY server.js.example server.js
 COPY next.config.js .
 
-COPY --from=builder .next .next
 COPY --from=node_installer node_modules node_modules
+COPY --from=builder .next .next
+
 CMD [ "node", "server.js" ]
