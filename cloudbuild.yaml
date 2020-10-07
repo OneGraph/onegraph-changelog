@@ -2,7 +2,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build',
            '--network=cloudbuild',
-            '--build-arg', "gcp_project=onegraph-prod',
+            '--build-arg', 'gcp_project=onegraph-prod',
             '-t', 'gcr.io/onegraph-prod/changelog', '.']
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/onegraph-prod/changelog']
