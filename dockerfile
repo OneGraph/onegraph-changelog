@@ -12,7 +12,7 @@ ENV NODE_ENV=production
 ARG gcp_project
 
 RUN yarn build && rm -rf .next/cache
-RUN yarn firebase-deploy-directory --project $gcp_project --subpath changelog/_next/static --directory .next/static/
+RUN yarn firebase-deploy-directory --project $gcp_project --subpath changelog/_next/static --directory .next/static/ --commit
 
 # Make smaller prod image
 FROM node:14 as node_installer
