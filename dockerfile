@@ -9,8 +9,10 @@ COPY . .
 
 ENV BASE_PATH="/changelog"
 ENV NODE_ENV=production
+ARG gcp_project
 
 RUN yarn build && rm -rf .next/cache
+RUN yarn firebase-deploy-directory --project $gcp_project --subpath changelog/_next/static --directory .next/static/
 
 # Make smaller prod image
 FROM node:14 as node_installer
