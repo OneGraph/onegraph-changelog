@@ -574,7 +574,7 @@ export const Post = ({relay, post, context}: Props) => {
   return (
     <PostBox>
       <Box pad="medium">
-        <Heading level={1} margin="none">
+        <Heading level={2} margin="none">
           {context === 'details' ? (
             post.title
           ) : (
@@ -630,7 +630,9 @@ export const Post = ({relay, post, context}: Props) => {
           </Box>
         ) : null}
         <Box direction="row" justify="between"></Box>
-        <MarkdownRenderer trustedInput={true} source={post.body} />
+        <Text>
+          <MarkdownRenderer trustedInput={true} source={post.body} />
+        </Text>
       </Box>
       <ReactionBar
         relay={relay}

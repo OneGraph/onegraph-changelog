@@ -1,14 +1,16 @@
 const https = require('https');
+const path = require('path');
 const GraphQLLanguage = require('graphql/language');
 const {parse, print} = require('graphql');
 
 require('dotenv').config();
+require('dotenv').config({path: path.resolve(process.cwd(), '.env.local')});
 
 if (
   (!process.env.REPOSITORY_FIXED_VARIABLES &&
     // Backwards compat with older apps that started with razzle
-    (process.env.RAZZLE_GITHUB_REPO_OWNER &&
-      process.env.RAZZLE_GITHUB_REPO_NAME)) ||
+    process.env.RAZZLE_GITHUB_REPO_OWNER &&
+    process.env.RAZZLE_GITHUB_REPO_NAME) ||
   (process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER &&
     process.env.NEXT_PUBLIC_GITHUB_REPO_NAME) ||
   (process.env.VERCEL_GITHUB_ORG && process.env.VERCEL_GITHUB_REPO)
@@ -67,22 +69,22 @@ async function persistQuery(queryText) {
         for (const directive of node.directives) {
           if (directive.name.value === 'persistedQueryConfiguration') {
             const accessTokenArg = directive.arguments.find(
-              a => a.name.value === 'accessToken',
+              (a) => a.name.value === 'accessToken',
             );
             const fixedVariablesArg = directive.arguments.find(
-              a => a.name.value === 'fixedVariables',
+              (a) => a.name.value === 'fixedVariables',
             );
             const freeVariablesArg = directive.arguments.find(
-              a => a.name.value === 'freeVariables',
+              (a) => a.name.value === 'freeVariables',
             );
 
             const cacheSecondsArg = directive.arguments.find(
-              a => a.name.value === 'cacheSeconds',
+              (a) => a.name.value === 'cacheSeconds',
             );
 
             if (accessTokenArg) {
               const envArg = accessTokenArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
+                (f) => f.name.value === 'environmentVariable',
               );
               if (envArg) {
                 if (accessToken) {
@@ -105,7 +107,7 @@ async function persistQuery(queryText) {
 
             if (fixedVariablesArg) {
               const envArg = fixedVariablesArg.value.fields.find(
-                f => f.name.value === 'environmentVariable',
+                (f) => f.name.value === 'environmentVariable',
               );
               if (envArg) {
                 if (fixedVariables) {
@@ -140,7 +142,7 @@ async function persistQuery(queryText) {
         return {
           ...node,
           directives: node.directives.filter(
-            d => d.name.value !== 'persistedQueryConfiguration',
+            (d) => d.name.value !== 'persistedQueryConfiguration',
           ),
         };
       },
@@ -186,8 +188,8 @@ async function persistQuery(queryText) {
           Authorization: 'Bearer ' + process.env.OG_DASHBOARD_ACCESS_TOKEN,
         },
       },
-      res => {
-        res.on('data', chunk => {
+      (res) => {
+        res.on('data', (chunk) => {
           data += chunk;
         });
         res.on('end', () => {

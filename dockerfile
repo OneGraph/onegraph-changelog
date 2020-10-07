@@ -2,7 +2,6 @@ FROM node:14 as builder
 
 COPY package.json .
 COPY yarn.lock .
-COPY .env .
 
 RUN yarn install
 
@@ -30,7 +29,8 @@ ENV NODE_ENV=production
 
 COPY package.json .
 COPY yarn.lock .
-COPY .env .
+# Copies public environment variables
+COPY .env.local .env
 COPY server.js.example server.js
 COPY next.config.js .
 
