@@ -618,7 +618,7 @@ export const Post = ({relay, post, context}: Props) => {
         ) : null}
       </Head>
       <Box pad="medium">
-        <Heading level={1} margin="none">
+        <Heading level={2} margin="none">
           {context === 'details' ? (
             post.title
           ) : (
@@ -668,20 +668,7 @@ export const Post = ({relay, post, context}: Props) => {
         ) : null}
         <Box direction="row" justify="between"></Box>
         <Text>
-          <MarkdownRenderer
-            trustedInput={true}
-            source={post.body}
-            addHeadingIds={context === 'details'}
-            HashLink={function HashLink(props) {
-              return (
-                <Link
-                  href="/post/[...slug]"
-                  as={`${postPath({post})}${props.hash}`}>
-                  <a>{props.children}</a>
-                </Link>
-              );
-            }}
-          />
+          <MarkdownRenderer trustedInput={true} source={post.body} />
         </Text>
       </Box>
       <ReactionBar

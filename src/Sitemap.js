@@ -1,3 +1,4 @@
+
 //@flow
 
 import {SitemapStream, streamToPromise} from 'sitemap';
