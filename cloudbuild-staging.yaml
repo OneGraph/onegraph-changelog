@@ -3,7 +3,6 @@ steps:
     args: ['build',
            '--network=cloudbuild',
             '--build-arg', 'gcp_project=oph-dashboard-staging',
-            '--cache-from', 'gcr.io/oph-dashboard-staging/changelog:latest',
             '-t', 'gcr.io/oph-dashboard-staging/changelog', '.']
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/oph-dashboard-staging/changelog']
