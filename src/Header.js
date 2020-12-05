@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import {Box, Heading} from 'grommet';
+import {Box, Heading, Text} from 'grommet';
 import Avatar from './Avatar';
 import Link from 'next/link';
 import ConfigContext from './ConfigContext';
