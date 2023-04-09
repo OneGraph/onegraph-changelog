@@ -1,7 +1,7 @@
 // @flow
 
-import React from 'react';
 import graphql from 'babel-plugin-relay/macro';
+import React from 'react';
 import {createPaginationContainer, type RelayPaginationProp} from 'react-relay';
 import Post from './Post';
 import type {Posts_repository} from './__generated__/Posts_repository.graphql';
